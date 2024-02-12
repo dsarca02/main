@@ -1,0 +1,33 @@
+local remote = game.ReplicatedStorage:WaitForChild("Combat Event")
+local MaxCombo = 5
+
+game.Players.PlayerAdded:Connect(function(player)
+	player.CharacterAdded:Connect(function(character)
+		character:SetAttribute("Combo", 1)
+	end)
+end)
+
+local function ChangeCombo(character)
+	local combo = character:GetAttribute("Combo")
+	
+	if combo < MaxCombo then
+		character:SetAttribute("Combo", combo+1)
+	else
+		character:SetAttribute("Combo", 1)
+	end
+end
+remote.OnServerEvent:Connect(function(player)
+	local character = player.Character
+	local humanoid = character:WaitForChild("Humanoid")
+	local rootpart = humanoid.RootPart
+	local animator = humanoid.Animator
+	
+	local combo = character:GetAttribute("Combo")
+	local attacking = character:GetAttribute("Attacking")
+	
+	if attacking then return end
+	character:SetAttribute("Attacking", true)
+	
+	
+	local animations = --This is where animations will go when finished
+end)
