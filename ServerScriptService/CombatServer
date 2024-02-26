@@ -1,4 +1,5 @@
 local remote = game.ReplicatedStorage:WaitForChild("Combat Event")
+local MuchachoHitbox = require(game.ServerStorage.modueles["MuchachoHitbox"])
 local MaxCombo = 5
 
 game.Players.PlayerAdded:Connect(function(player)
@@ -16,6 +17,18 @@ local function ChangeCombo(character)
 		character:SetAttribute("Combo", 1)
 	end
 end
+
+local function ComboReset(character, oldcombo)
+	task.delay(1, function()
+		local currentcombo = character:GetAttribute("Combo")
+		
+		if oldcombo == 5 then return end
+		
+		if currentcombo-1 == oldcombo and character:GetAttribute("Attacking") then
+			character:SetAttribute("Combo, 1")
+		end
+	end)
+end
 remote.OnServerEvent:Connect(function(player)
 	local character = player.Character
 	local humanoid = character:WaitForChild("Humanoid")
@@ -30,4 +43,34 @@ remote.OnServerEvent:Connect(function(player)
 	
 	
 	local animations = --This is where animations will go when finished
+	local animation = animator:LoadAnimation(animations[combo])
+	
+	
+	local hitbox = MuchachoHitbox.CreateHitbox()
+	hitbox.Size = Vector3.new(6,6,6)
+	hitbox.Offset = CFrame.new(0,0,-2.5)
+	hitbox.Cframe = rootpart
+	--hitbox.visualizer = false Leave TRUE For now while testing
+	
+	animation.Stopped:Connect(function()
+		ComboReset(character, combo)
+		if combo == 5 then
+			humanoid.Walkspeed = 5
+		end
+		humanoid.WalkSpeed = 16
+		character:SetAttribute("Attacking", nil) --When the animation stops the player is no longer attacking
+		hitbox:Stop()
+	end)
+	
+	hitbox.Touched:Connect(function(hit, hum)
+		if hum == humanoid then return end
+		hum:TakeDamage(5)
+	end)
+	animation:Play()
+	task.wait(.16)
+	hitbox:Start()
+	
+	SetCombo(character)
+	
+	
 end)
